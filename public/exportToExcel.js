@@ -44,7 +44,9 @@ async function exportToExcel() {
         }
 
         // Use fetch with proper Authorization header instead of form submission
-        const response = await fetch(`http://localhost:3000/api/export-to-excel`, {
+        // Get the base URL dynamically to support both local development and production
+        const baseUrl = window.location.origin;
+        const response = await fetch(`${baseUrl}/api/export-to-excel`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,

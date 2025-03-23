@@ -1,0 +1,27 @@
+# Vercel Environment Variables for Attendance System
+
+# Authentication
+JWT_SECRET=83d8a2874d861288899e88c81e8ebbd97f2f3a5fc2445f1e979dea446f5af9ba
+
+# Firebase Configuration
+FIREBASE_API_KEY=AIzaSyDyzx2zbkFltHkxVBE-BSOto_AnWF5CzFk
+FIREBASE_AUTH_DOMAIN=fir-675f5.firebaseapp.com
+FIREBASE_PROJECT_ID=fir-675f5
+FIREBASE_STORAGE_BUCKET=fir-675f5.firebasestorage.app
+FIREBASE_MESSAGING_SENDER_ID=883541718161
+FIREBASE_APP_ID=1:883541718161:web:e8d4244c19d3187facfb30
+FIREBASE_MEASUREMENT_ID=G-7W3P8TY0GJ
+
+# Google Sheets Integration
+# Replace these with your actual Google service account credentials
+GOOGLE_CLIENT_EMAIL=your-service-account-email@your-project.iam.gserviceaccount.com
+GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour private key content with newlines\n-----END PRIVATE KEY-----\n"
+USER_EMAIL=default-user-email@example.com
+
+# Server Configuration
+PORT=3000
+
+# Note: When adding these to Vercel, make sure to:
+# 1. Include all newlines in the GOOGLE_PRIVATE_KEY
+# 2. Use your actual Google service account credentials
+# 3. Set a strong JWT_SECRET (the one provided is from your local .env file)
