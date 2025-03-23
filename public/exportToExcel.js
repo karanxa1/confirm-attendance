@@ -15,6 +15,7 @@ async function exportToExcel() {
     resultDiv.innerHTML = 'Exporting to Excel...';
     
     // Get the base URL dynamically to support both local development and production
+    // Define baseUrl outside the try block so it's accessible in the catch block
     const baseUrl = window.location.origin;
     
     try {
@@ -47,6 +48,7 @@ async function exportToExcel() {
         }
 
         // Use fetch with proper Authorization header instead of form submission
+        // Ensure we're using the correct API endpoint path
         const response = await fetch(`${baseUrl}/api/export-to-excel`, {
             method: 'POST',
             headers: {
