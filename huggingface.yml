@@ -1,6 +1,0 @@
-build:
-  docker:
-    dockerfile: Dockerfile
-    context: .
-
-port: 3000
