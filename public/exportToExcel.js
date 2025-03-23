@@ -14,6 +14,9 @@ async function exportToExcel() {
     const resultDiv = document.getElementById('report-result');
     resultDiv.innerHTML = 'Exporting to Excel...';
     
+    // Get the base URL dynamically to support both local development and production
+    const baseUrl = window.location.origin;
+    
     try {
         // Make sure token exists and is properly formatted
         const token = localStorage.getItem('token');
@@ -44,8 +47,6 @@ async function exportToExcel() {
         }
 
         // Use fetch with proper Authorization header instead of form submission
-        // Get the base URL dynamically to support both local development and production
-        const baseUrl = window.location.origin;
         const response = await fetch(`${baseUrl}/api/export-to-excel`, {
             method: 'POST',
             headers: {
@@ -99,6 +100,20 @@ async function exportToExcel() {
         } else {
             console.error(`Error exporting to Excel: ${error.message}`);
         }
+        // Add more detailed logging to help diagnose URL-related issues
         console.error('Error exporting to Excel:', error);
+        console.log('Request details:', {
+            baseUrl: baseUrl,
+            endpoint: `${baseUrl}/api/export-to-excel`,
+            headers: {
+                'Authorization': 'Bearer [TOKEN]', // Not showing actual token for security
+                'Content-Type': 'application/json'
+            },
+            body: {
+                classId,
+                fromDate,
+                toDate
+            }
+        });
     }
 }

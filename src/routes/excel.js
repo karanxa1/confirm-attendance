@@ -174,10 +174,20 @@ router.post('/export-to-excel', authenticate, authorize([ROLES.ADMIN]), async (r
         let errorMessage = 'Failed to export to Excel';
         let statusCode = 500;
         
+        // Log request information to help diagnose URL-related issues
+        console.log('Request origin:', req.headers.origin);
+        console.log('Request host:', req.headers.host);
+        console.log('Request URL:', req.originalUrl);
+        
         res.status(statusCode).json({ 
             message: errorMessage, 
             error: error.message,
-            details: error.stack
+            details: error.stack,
+            requestInfo: {
+                origin: req.headers.origin,
+                host: req.headers.host,
+                url: req.originalUrl
+            }
         });
     }
 });
