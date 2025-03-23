@@ -46,4 +46,5 @@ const host = '0.0.0.0'; // Listen on all network interfaces for Hugging Face com
 app.listen(port, host, () => {
     console.log(`Server running on http://${host}:${port}`);
     console.log('For local development, access at http://localhost:' + port);
+    console.log('API endpoint available at: ' + (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/api` : `http://localhost:${port}/api`));
 });

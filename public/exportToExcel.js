@@ -49,6 +49,7 @@ async function exportToExcel() {
 
         // Use fetch with proper Authorization header instead of form submission
         // Ensure we're using the correct API endpoint path
+        console.log('Making API request to:', `${baseUrl}/api/export-to-excel`);
         const response = await fetch(`${baseUrl}/api/export-to-excel`, {
             method: 'POST',
             headers: {
@@ -117,5 +118,25 @@ async function exportToExcel() {
                 toDate
             }
         });
+        
+        // Check if it's a network error and provide more helpful information
+        if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+            console.error('Network error detected. This could be because:');
+            console.error('1. The server is not running');
+            console.error('2. The server is running on a different port');
+            console.error('3. There might be a CORS issue');
+            console.error('4. The network connection is blocked by a firewall or proxy');
+            
+            resultDiv.innerHTML = `
+                <h4>Connection Error</h4>
+                <p>Unable to connect to the server. Please check that:</p>
+                <ul>
+                    <li>The server is running</li>
+                    <li>You are connected to the internet</li>
+                    <li>There are no firewall or proxy issues</li>
+                </ul>
+                <p>Technical details: ${error.message}</p>
+            `;
+        }
     }
 }
