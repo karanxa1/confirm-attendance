@@ -58,8 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cancel-class-btn').addEventListener('click', hideClassForm);
     document.getElementById('class-form').addEventListener('submit', createClass);
     document.getElementById('generate-report-btn').addEventListener('click', generateReport);
-    document.getElementById('export-sheets-btn').addEventListener('click', exportToGoogleSheets);
-document.getElementById('export-excel-btn').addEventListener('click', exportToExcel);
+    document.getElementById('export-excel-btn').addEventListener('click', exportToExcel);
     document.getElementById('graph-class').addEventListener('change', loadAttendanceGraph);
     document.getElementById('update-graph-btn').addEventListener('click', loadAttendanceGraph);
     document.getElementById('export-graph-btn').addEventListener('click', exportGraph);
