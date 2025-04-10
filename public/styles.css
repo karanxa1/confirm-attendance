@@ -1064,3 +1064,192 @@ body.dark-mode {
         color: #ff6b6b;
     }
 }
+
+/* Chart Container */
+.chart-container {
+    width: 100%;
+    position: relative;
+    height: 400px;
+    margin-top: var(--space-5);
+    background-color: var(--white);
+    border-radius: var(--radius);
+    padding: var(--space-4);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--medium-gray);
+    overflow: hidden;
+}
+
+#attendanceChart {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 600px;
+}
+
+/* Graph Controls */
+.graph-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    background-color: var(--white);
+    padding: var(--space-4);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--medium-gray);
+    margin-bottom: var(--space-5);
+}
+
+.graph-controls .form-group {
+    flex: 1 1 200px;
+    margin-bottom: var(--space-3);
+}
+
+.graph-actions {
+    display: flex;
+    gap: var(--space-3);
+    width: 100%;
+    margin-top: var(--space-3);
+}
+
+.graph-actions button {
+    flex: 1;
+}
+
+/* Responsive Design Improvements */
+@media (max-width: 768px) {
+    .container { 
+        padding: var(--space-3);
+        width: 100%;
+    }
+    
+    header { 
+        flex-direction: column; 
+        text-align: center;
+        padding: var(--space-3);
+        gap: var(--space-3);
+    }
+    
+    #user-info { 
+        flex-direction: column;
+        margin-top: var(--space-3);
+        width: 100%;
+        padding: var(--space-3);
+    }
+    
+    #logout-btn {
+        margin-top: var(--space-3);
+        width: 100%;
+    }
+    
+    .tab-navigation { 
+        flex-direction: column; 
+        border-radius: var(--radius);
+    }
+    
+    .tab-btn { 
+        border-radius: 0;
+        margin: 2px 0;
+        padding: var(--space-3);
+    }
+    
+    .tab-btn:first-child {
+        border-top-left-radius: var(--radius);
+        border-top-right-radius: var(--radius);
+    }
+    
+    .tab-btn:last-child {
+        border-bottom-left-radius: var(--radius);
+        border-bottom-right-radius: var(--radius);
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        padding: var(--space-3);
+    }
+    
+    .action-buttons button {
+        width: 100%;
+        margin: var(--space-2) 0;
+    }
+
+    .graph-controls {
+        flex-direction: column;
+        padding: var(--space-3);
+    }
+    
+    .graph-controls .form-group {
+        width: 100%;
+        flex-basis: 100%;
+    }
+    
+    .graph-actions {
+        flex-direction: column;
+    }
+    
+    .chart-container {
+        padding: var(--space-2);
+        height: 300px;
+    }
+    
+    #attendance-buttons {
+        justify-content: space-between;
+    }
+    
+    .student-btn {
+        width: calc(50% - var(--space-2));
+        height: 80px;
+        margin: var(--space-1);
+        font-size: 0.9rem;
+    }
+    
+    /* Mobile table improvements */
+    table {
+        border: none;
+        box-shadow: none;
+    }
+    
+    tr {
+        display: block;
+        margin-bottom: var(--space-4);
+        box-shadow: var(--shadow-sm);
+        border-radius: var(--radius);
+        background-color: var(--white);
+    }
+    
+    thead, th {
+        display: none;
+    }
+    
+    td {
+        display: block;
+        text-align: right;
+        position: relative;
+        padding: var(--space-3) var(--space-4);
+        padding-left: 50%;
+    }
+    
+    td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: var(--space-4);
+        width: 45%;
+        text-align: left;
+        font-weight: 600;
+    }
+    
+    /* Dark mode adjustments for mobile */
+    body.dark-mode {
+        .chart-container {
+            background-color: #1d1d1f;
+            border-color: #444;
+        }
+        
+        tr {
+            background-color: #1d1d1f;
+            border: 1px solid #444;
+        }
+        
+        td {
+            border-bottom: 1px solid #444;
+        }
+    }
+}

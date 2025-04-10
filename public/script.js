@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoutBtn = document.getElementById('logout-btn');
     const adminPanel = document.getElementById('admin-panel');
     const facultyPanel = document.getElementById('faculty-panel');
-    const graphContainer = document.getElementById('graph');
 
     // Config and global variables
     // Dynamically determine the API URL based on the current host
@@ -19,31 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (attendanceDateField) {
         attendanceDateField.valueAsDate = new Date();
     }
-
-    // Add graph controls (date range, update button, export button, chart type toggle)
-    graphContainer.innerHTML += `
-        <div class="graph-controls">
-            <div class="form-group">
-                <label for="graph-date-from"><i class="fas fa-calendar-alt"></i> From Date:</label>
-                <input type="date" id="graph-date-from" value="${new Date().toISOString().split('T')[0]}">
-            </div>
-            <div class="form-group">
-                <label for="graph-date-to"><i class="fas fa-calendar-alt"></i> To Date:</label>
-                <input type="date" id="graph-date-to" value="${new Date().toISOString().split('T')[0]}">
-            </div>
-            <button id="update-graph-btn" class="btn-success"><i class="fas fa-sync"></i> Update Graph</button>
-            <button id="export-graph-btn" class="btn-success" style="margin-left: 10px;"><i class="fas fa-download"></i> Export as PNG</button>
-            <div class="form-group" style="margin-top: 10px;">
-                <label for="chart-type">Chart Type:</label>
-                <select id="chart-type">
-                    <option value="bar">Bar</option>
-                    <option value="line">Line</option>
-                </select>
-            </div>
-        </div>
-    `;
-
-    // Dark mode toggle is now added directly in the HTML
 
     // Check stored authentication and dark mode preference
     init();
@@ -59,10 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('class-form').addEventListener('submit', createClass);
     document.getElementById('generate-report-btn').addEventListener('click', generateReport);
     document.getElementById('export-excel-btn').addEventListener('click', exportToExcel);
-    document.getElementById('graph-class').addEventListener('change', loadAttendanceGraph);
-    document.getElementById('update-graph-btn').addEventListener('click', loadAttendanceGraph);
-    document.getElementById('export-graph-btn').addEventListener('click', exportGraph);
-    document.getElementById('chart-type').addEventListener('change', loadAttendanceGraph);
     document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
 
     // Initialize the application
@@ -471,15 +441,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 const reportClassSelect = document.getElementById('report-class');
-                const graphClassSelect = document.getElementById('graph-class');
                 reportClassSelect.innerHTML = '<option value="">Select a class</option>';
-                graphClassSelect.innerHTML = '<option value="">Select a class</option>';
                 classes.forEach(cls => {
                     const option = document.createElement('option');
                     option.value = cls.id;
                     option.textContent = cls.name;
                     reportClassSelect.appendChild(option.cloneNode(true));
-                    graphClassSelect.appendChild(option);
                 });
             } else if (userRole === 'faculty') {
                 const classSelect = document.getElementById('class-select');
@@ -943,248 +910,6 @@ document.addEventListener('DOMContentLoaded', () => {
             resultDiv.innerHTML = 'Error generating report';
             showToast(`Error generating report: ${error.message}`, 'error');
             console.error('Error generating report:', error);
-        }
-    }
-
-    // Improved attendance graph function with height limit
-    async function loadAttendanceGraph() {
-        const classId = document.getElementById('graph-class').value;
-        const fromDate = document.getElementById('graph-date-from').value;
-        const toDate = document.getElementById('graph-date-to').value;
-        const chartType = document.getElementById('chart-type').value;
-        const canvas = document.getElementById('attendanceChart');
-        const ctx = canvas.getContext('2d');
-
-        if (!classId) {
-            canvas.style.display = 'none';
-            return;
-        }
-
-        // Show loading state
-        canvas.style.display = 'block';
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#f0f0f0';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#333';
-        ctx.font = '16px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('Loading...', canvas.width / 2, canvas.height / 2);
-
-        try {
-            const response = await fetch(`${API_URL}/attendance/${classId}?fromDate=${fromDate || ''}&toDate=${toDate || ''}`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            if (!response.ok) throw new Error('Failed to fetch attendance data');
-
-            const data = await response.json();
-            if (!data || data.length === 0) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.fillText('No attendance data available', canvas.width / 2, canvas.height / 2);
-                return;
-            }
-
-            // Determine data structure and process accordingly
-            let studentsData = [];
-            
-            try {
-                // Check if data is an array of students with attendance records
-                if (Array.isArray(data) && data[0] && (data[0].attendance || data[0].students)) {
-                    // Case 1: Each item represents a student with attendance records
-                    studentsData = data.map(student => {
-                        // Handle different possible data structures
-                        const attendanceRecords = student.attendance || student.records || [];
-                        const filteredRecords = attendanceRecords.filter(record => {
-                            // Safely extract date from record
-                            const recordDate = record && record.date ? 
-                                new Date(record.date).toISOString().split('T')[0] : '';
-                            const isValidFrom = !fromDate || recordDate >= fromDate;
-                            const isValidTo = !toDate || recordDate <= toDate;
-                            return recordDate && isValidFrom && isValidTo;
-                        });
-                        
-                        // Count present/absent based on status field
-                        const presentCount = filteredRecords.filter(r => 
-                            r.status === 'Present' || r.status === 'present' || r.present === true).length;
-                        const absentCount = filteredRecords.filter(r => 
-                            r.status === 'Absent' || r.status === 'absent' || r.present === false).length;
-                            
-                        return {
-                            name: student.name || `Student ${student.id || 'Unknown'}`,
-                            presentCount,
-                            absentCount,
-                            details: filteredRecords.map(r => 
-                                `${r.date || 'Unknown date'}: ${r.status || (r.present ? 'Present' : 'Absent')}`
-                            ).join('\n') || 'No records'
-                        };
-                    });
-                } else if (Array.isArray(data) && data[0] && data[0].date) {
-                    // Case 2: Each item is a date-based record
-                    // Group by student if possible, otherwise create a single aggregate entry
-                    const aggregateData = {
-                        present: 0,
-                        absent: 0,
-                        details: []
-                    };
-                    
-                    data.forEach(record => {
-                        const recordDate = record.date ? new Date(record.date).toISOString().split('T')[0] : 'Unknown';
-                        const isValidFrom = !fromDate || recordDate >= fromDate;
-                        const isValidTo = !toDate || recordDate <= toDate;
-                        
-                        if (isValidFrom && isValidTo) {
-                            if (record.status === 'Present' || record.present === true) {
-                                aggregateData.present++;
-                            } else {
-                                aggregateData.absent++;
-                            }
-                            aggregateData.details.push(`${recordDate}: ${record.status || (record.present ? 'Present' : 'Absent')}`);
-                        }
-                    });
-                    
-                    studentsData = [{
-                        name: 'Attendance Summary',
-                        presentCount: aggregateData.present,
-                        absentCount: aggregateData.absent,
-                        details: aggregateData.details.join('\n') || 'No records'
-                    }];
-                } else {
-                    // Fallback for unexpected data structure
-                    throw new Error('Unexpected data format');
-                }
-            } catch (error) {
-                console.error('Error processing attendance data:', error);
-                // Create a fallback data point to avoid chart errors
-                studentsData = [{
-                    name: 'Error in data',
-                    presentCount: 0,
-                    absentCount: 0,
-                    details: 'Could not process attendance data'
-                }];
-            }
-
-            // Destroy existing chart if it exists
-            if (window.attendanceChart instanceof Chart) {
-                window.attendanceChart.destroy();
-            }
-
-            // Calculate dynamic height with a maximum limit
-            const maxHeight = 800; // Maximum height in pixels
-            const baseHeight = 300; // Minimum height
-            const itemHeight = 50; // Height per student
-            const dynamicHeight = Math.min(maxHeight, baseHeight + Math.min(studentsData.length, 10) * itemHeight); // Limit to 10 students for height
-
-            // Create new chart with dynamic colors based on dark mode
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            window.attendanceChart = new Chart(ctx, {
-                type: chartType,
-                data: {
-                    labels: studentsData.map(s => s.name),
-                    datasets: [
-                        {
-                            label: 'Present',
-                            data: studentsData.map(s => s.presentCount),
-                            backgroundColor: '#2ecc71',
-                            stack: 'Stack 0',
-                            borderWidth: 1,
-                            borderColor: '#27ae60'
-                        },
-                        {
-                            label: 'Absent',
-                            data: studentsData.map(s => s.absentCount),
-                            backgroundColor: '#e74c3c',
-                            stack: 'Stack 0',
-                            borderWidth: 1,
-                            borderColor: '#c0392b'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    aspectRatio: 2,
-                    scales: {
-                        x: {
-                            stacked: true,
-                            ticks: {
-                                color: isDarkMode ? '#e0e0e0' : '#333'
-                            },
-                            grid: {
-                                color: isDarkMode ? '#444' : '#ddd'
-                            }
-                        },
-                        y: {
-                            stacked: true,
-                            beginAtZero: true,
-                            title: { display: true, text: 'Count', color: isDarkMode ? '#e0e0e0' : '#333' },
-                            ticks: {
-                                color: isDarkMode ? '#e0e0e0' : '#333'
-                            },
-                            grid: {
-                                color: isDarkMode ? '#444' : '#ddd'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                color: isDarkMode ? '#e0e0e0' : '#333'
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const student = studentsData[context.dataIndex];
-                                    return [
-                                        `${context.dataset.label}: ${context.raw}`,
-                                        `Details: ${student.details}`
-                                    ];
-                                }
-                            },
-                            backgroundColor: isDarkMode ? '#333' : '#fff',
-                            titleColor: isDarkMode ? '#e0e0e0' : '#333',
-                            bodyColor: isDarkMode ? '#e0e0e0' : '#333',
-                            borderColor: isDarkMode ? '#555' : '#ccc',
-                            borderWidth: 1
-                        }
-                    },
-                    height: dynamicHeight
-                }
-            });
-
-            // Set canvas height after chart creation to ensure proper rendering
-            canvas.height = dynamicHeight;
-            canvas.style.height = `${dynamicHeight}px`;
-            showToast('Graph updated successfully', 'success');
-        } catch (error) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillText('Error loading graph', canvas.width / 2, canvas.height / 2);
-            showToast(`Error loading graph: ${error.message}`, 'error');
-            console.error('Error loading graph:', error);
-        }
-    }
-
-    // Export graph as PNG with improved error handling
-    function exportGraph() {
-        try {
-            const canvas = document.getElementById('attendanceChart');
-            if (!canvas) {
-                showToast('Canvas element not found', 'error');
-                return;
-            }
-            
-            if (window.attendanceChart && typeof window.attendanceChart !== 'undefined') {
-                const link = document.createElement('a');
-                link.download = `attendance_graph_${new Date().toISOString().split('T')[0]}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-                showToast('Graph exported successfully', 'success');
-            } else {
-                showToast('No graph data available to export', 'error');
-            }
-        } catch (error) {
-            console.error('Error exporting graph:', error);
-            showToast(`Failed to export graph: ${error.message}`, 'error');
         }
     }
 
