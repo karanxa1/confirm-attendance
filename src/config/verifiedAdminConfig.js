@@ -1,4 +1,3 @@
-// Using the exact same approach as the successful test script
 const admin = require('firebase-admin');
 const path = require('path');
 
@@ -7,9 +6,14 @@ try {
   
   // Only initialize if not already done
   if (!admin.apps.length) {
-    // This is exactly how the test script loads the service account - use require directly
-    const serviceAccountPath = path.resolve(__dirname, '../../serviceAccountKey.json');
-    const serviceAccount = require(serviceAccountPath);
+    let serviceAccount;
+    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+      serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    } else {
+      // fallback for local development
+      const serviceAccountPath = path.resolve(__dirname, '../../serviceAccountKey.json');
+      serviceAccount = require(serviceAccountPath);
+    }
     
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount)
