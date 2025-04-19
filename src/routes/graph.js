@@ -1,21 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const { db } = require('../config/firebaseConfig');
-const { doc, getDoc } = require('firebase/firestore');
+const { db } = require('../config/firebaseAdminConfig'); // Use Admin SDK here
 const authenticate = require('../middleware/authenticate');
 const authorize = require('../middleware/authorize');
 const { ROLES } = require('../config/auth');
 
+// Use Admin SDK's .doc() and .get() methods
 router.get('/attendance/:classId', authenticate, authorize([ROLES.ADMIN, ROLES.FACULTY]), async (req, res) => {
     try {
         const { classId } = req.params;
-        const classDoc = await getDoc(doc(db, 'classes', classId));
-        if (!classDoc.exists()) {
+        const classDoc = await db.collection('classes').doc(classId).get();
+        if (!classDoc.exists) {
             return res.status(404).json({ message: 'Class not found' });
         }
 
         const classData = classDoc.data();
-        const summary = classData.students.map(student => {
+        const summary = (classData.students || []).map(student => {
             const attendance = student.attendance || [];
             const presentCount = attendance.filter(a => a.status === 'Present').length;
             const absentCount = attendance.length - presentCount;

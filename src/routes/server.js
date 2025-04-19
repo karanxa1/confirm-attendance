@@ -1,9 +1,8 @@
-// Load verified admin configuration at the very top
-const firebaseAdmin = require('../config/verifiedAdminConfig');
-console.log(`Firebase Admin initialization status: ${firebaseAdmin.isInitialized}`);
-
-// Load environment variables from .env file
+// Load environment variables at the start
 require('dotenv').config();
+
+// Use the environment-based admin config
+const { admin, db } = require('../config/envAdminConfig');
 
 const express = require('express');
 const path = require('path');
@@ -48,6 +47,15 @@ app.get('*', (req, res) => {
     } else {
         res.status(404).json({ message: 'API route not found' });
     }
+});
+
+// Add error handling middleware at the end
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(500).json({
+    error: 'Internal server error',
+    message: process.env.NODE_ENV === 'production' ? 'An error occurred' : err.message
+  });
 });
 
 const port = process.env.PORT || 3000;
