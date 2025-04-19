@@ -1,3 +1,7 @@
+// Load verified admin configuration at the very top
+const firebaseAdmin = require('../config/verifiedAdminConfig');
+console.log(`Firebase Admin initialization status: ${firebaseAdmin.isInitialized}`);
+
 // Load environment variables from .env file
 require('dotenv').config();
 
@@ -30,6 +34,12 @@ app.use('/api', graphRouter);
 app.use('/api', authRouter);
 app.use('/api', sheetsRouter);
 app.use('/api', excelRouter);
+
+// Add the test route
+app.use('/api/test', require('../api/test'));
+
+// Add the direct test route
+app.use('/api/direct-test', require('../api/directTest'));
 
 // Fallback to serve index.html for SPA, but only for non-API routes
 app.get('*', (req, res) => {

@@ -2,13 +2,14 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Allow anyone to create a user
     match /users/{userId} {
-      allow read, write: if request.auth != null && (request.auth.token.role == 'admin' || request.auth.uid == userId);
+      allow create: if true;
     }
-    
-    match /classes/{classId} {
-      allow read: if request.auth != null && (request.auth.token.role in ['admin', 'faculty']);
-      allow write: if request.auth != null && request.auth.token.role == 'admin';
+    // TEMPORARY: Allow public read, but only authenticated write
+    match /{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
     }
   }
 }
