@@ -1,4 +1,18 @@
 node_modules/
 .env
 credentials.json
-serviceAccountKey.json  # Add if using Firebase Admin SDK
+serviceAccountKey.json
+.env.local
+# Firebase
+firebase-debug.log
+firebase-debug.*.log
+# Node modules
+node_modules/
+# Build output
+dist/
+build/
+# Misc
+.DS_Store
+*.log
+# Vercel
+.vercel/
