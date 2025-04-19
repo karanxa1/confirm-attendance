@@ -58,24 +58,13 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Configure port options
+// Use dynamic port assignment for Vercel
 const PORT = process.env.PORT || 3000;
-const ALT_PORT = 3001;  // Alternative port if default port is busy
 
-// Start server with error handling for port conflicts
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on http://0.0.0.0:${PORT}`);
-  console.log(`For local development, access at http://localhost:${PORT}`);
-  console.log(`API endpoint available at: http://localhost:${PORT}/api`);
-}).on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    console.log(`⚠️ Port ${PORT} is busy, trying alternative port ${ALT_PORT}`);
-    app.listen(ALT_PORT, '0.0.0.0', () => {
-      console.log(`Server running on http://0.0.0.0:${ALT_PORT}`);
-      console.log(`For local development, access at http://localhost:${ALT_PORT}`);
-      console.log(`API endpoint available at: http://localhost:${ALT_PORT}/api`);
-    });
-  } else {
-    console.error('Error starting server:', err);
-  }
+// Make sure server closing logic works in serverless environment
+const server = app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
+
+// Export for Vercel serverless deployment
+module.exports = app;

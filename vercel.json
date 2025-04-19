@@ -11,5 +11,8 @@
       "src": "/(.*)",
       "dest": "src/routes/server.js"
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
