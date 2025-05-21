@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Attendance System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="retro-grid.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <h1><i class="fas fa-user-graduate"></i> College Attendance System</h1>
+            </div>
+            <div id="user-info" class="hidden">
+                <i class="fas fa-user-circle"></i>
+                <span id="username-display"></span>
+                <span id="role-display"></span>
+                <button id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                <div class="dark-mode-container">
+                    <input type="checkbox" id="dark-mode-checkbox">
+                    <label for="dark-mode-checkbox" class="dark-mode-toggle-label" id="dark-mode-toggle"></label>
+                </div>
+            </div>
+        </header>
+
+        <div id="login-container" class="auth-container fade-in">
+            <h2><i class="fas fa-lock"></i> Login</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username"><i class="fas fa-user"></i> Username:</label>
+                    <input type="text" id="username" required placeholder="Enter your username">
+                </div>
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-key"></i> Password:</label>
+                    <input type="password" id="password" required placeholder="Enter your password">
+                </div>
+                <button type="submit" class="btn-success"><i class="fas fa-sign-in-alt"></i> Login</button>
+            </form>
+        </div>
+
+        <div id="app-container" class="hidden fade-in">
+            <div id="admin-panel" class="hidden">
+                <h2><i class="fas fa-cogs"></i> Admin Panel</h2>
+                <div class="tab-navigation">
+                    <button class="tab-btn active" data-tab="user-management"><i class="fas fa-users"></i> User Management</button>
+                    <button class="tab-btn" data-tab="class-management"><i class="fas fa-chalkboard"></i> Class Management</button>
+                    <button class="tab-btn" data-tab="reports"><i class="fas fa-chart-bar"></i> Reports</button>
+                    <button class="tab-btn" data-tab="graph"><i class="fas fa-chart-pie"></i> Attendance Graph</button>
+                </div>
+
+                <div id="user-management" class="tab-content fade-in">
+                    <h3><i class="fas fa-users-cog"></i> User Management</h3>
+                    <button id="add-user-btn" class="btn-success"><i class="fas fa-user-plus"></i> Add New User</button>
+                    <div id="user-form-container" class="hidden fade-in">
+                        <form id="user-form">
+                            <div class="form-group">
+                                <label for="new-username"><i class="fas fa-user"></i> Username:</label>
+                                <input type="text" id="new-username" required placeholder="Enter username">
+                            </div>
+                            <div class="form-group">
+                                <label for="new-password"><i class="fas fa-key"></i> Password:</label>
+                                <input type="password" id="new-password" required placeholder="Enter password">
+                            </div>
+                            <div class="form-group">
+                                <label for="role"><i class="fas fa-user-tag"></i> Role:</label>
+                                <select id="role" required>
+                                    <option value="">Select a role</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="faculty">Faculty</option>
+                                    <option value="staff">Staff</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-success"><i class="fas fa-save"></i> Save User</button>
+                            <button type="button" id="cancel-user-btn" class="btn-danger"><i class="fas fa-times"></i> Cancel</button>
+                        </form>
+                    </div>
+                    <table id="users-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-list"></tbody>
+                    </table>
+                </div>
+
+                <div id="class-management" class="tab-content hidden fade-in">
+                    <h3><i class="fas fa-chalkboard-teacher"></i> Class Management</h3>
+                    <button id="add-class-btn" class="btn-success"><i class="fas fa-plus-circle"></i> Add New Class</button>
+                    <div id="class-form-container" class="hidden fade-in">
+                        <form id="class-form">
+                            <div class="form-group">
+                                <label for="class-name"><i class="fas fa-chalkboard"></i> Class Name:</label>
+                                <input type="text" id="class-name" required placeholder="Enter class name">
+                            </div>
+                            <div class="form-group">
+                                <label for="class-strength"><i class="fas fa-users"></i> Class Strength:</label>
+                                <input type="number" id="class-strength" min="1" required placeholder="Number of students">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-user-graduate"></i> Student Data:</label>
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="add-student-data" name="add-student-data">
+                                    <label for="add-student-data">Add student details</label>
+                                </div>
+                                <div class="checkbox-group" style="margin-top: 10px;">
+                                    <input type="checkbox" id="import-json-data" name="import-json-data">
+                                    <label for="import-json-data">Import student data from JSON</label>
+                                </div>
+                            </div>
+                            <div id="json-data-container" class="hidden">
+                                <div class="form-group">
+                                    <label for="json-data"><i class="fas fa-code"></i> JSON Data:</label>
+                                    <textarea id="json-data" rows="6" placeholder="Paste your JSON data here"></textarea>
+                                    <div class="json-example">
+                                        <p><strong>Example JSON format:</strong></p>
+                                        <pre>[
+  {
+    "name": "John Doe",
+    "rollNumber": "101"
+  },
+  {
+    "name": "Jane Smith",
+    "rollNumber": "102"
+  }
+]</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="student-data-container" class="hidden">
+                                <!-- Student data fields will be dynamically added here -->
+                            </div>
+                            <button type="submit" class="btn-success"><i class="fas fa-save"></i> Save Class</button>
+                            <button type="button" id="cancel-class-btn" class="btn-danger"><i class="fas fa-times"></i> Cancel</button>
+                        </form>
+                    </div>
+                    <table id="classes-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Class Name</th>
+                                <th>Strength</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="classes-list"></tbody>
+                    </table>
+                </div>
+
+                <div id="reports" class="tab-content hidden fade-in">
+                    <h3><i class="fas fa-file-alt"></i> Attendance Reports</h3>
+                    <div class="form-group">
+                        <label for="report-class"><i class="fas fa-chalkboard"></i> Select Class:</label>
+                        <select id="report-class"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="report-date-from"><i class="fas fa-calendar-alt"></i> From Date:</label>
+                        <input type="date" id="report-date-from">
+                    </div>
+                    <div class="form-group">
+                        <label for="report-date-to"><i class="fas fa-calendar-alt"></i> To Date:</label>
+                        <input type="date" id="report-date-to">
+                    </div>
+                    <div class="action-buttons">
+                        <button id="generate-report-btn" class="btn-success"><i class="fas fa-chart-line"></i> Generate Report</button>
+                        <button id="export-sheets-btn" class="btn-primary"><i class="fas fa-file-excel"></i> Export to Google Sheets</button>
+                        <button id="export-excel-btn" class="btn-success"><i class="fas fa-file-excel"></i> Export to Excel</button>
+                    </div>
+                    <div id="report-result"></div>
+                </div>
+
+                <div id="graph" class="tab-content hidden fade-in">
+                    <h3><i class="fas fa-chart-pie"></i> Attendance Graph</h3>
+                    <div class="form-group">
+                        <label for="graph-class"><i class="fas fa-chalkboard"></i> Select Class:</label>
+                        <select id="graph-class"></select>
+                    </div>
+                    <canvas id="attendanceChart"></canvas>
+                </div>
+            </div>
+
+            <div id="faculty-panel" class="hidden fade-in">
+                <h2><i class="fas fa-chalkboard-teacher"></i> Faculty Panel</h2>
+                <div class="class-selection">
+                    <div class="form-group">
+                        <label for="class-select"><i class="fas fa-chalkboard"></i> Select Class:</label>
+                        <select id="class-select"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="attendance-date"><i class="fas fa-calendar-alt"></i> Date:</label>
+                        <input type="date" id="attendance-date" value="">
+                    </div>
+                </div>
+                <div id="attendance-container">
+                    <h3><i class="fas fa-clipboard-check"></i> Mark Attendance</h3>
+                    <p><i class="fas fa-info-circle"></i> Click on student cards to mark them present:</p>
+                    <div id="attendance-buttons"></div>
+                    <div class="action-buttons">
+                        <button id="mark-all-btn"><i class="fas fa-check-circle"></i> Mark All Present</button>
+                        <button id="unmark-all-btn"><i class="fas fa-times-circle"></i> Mark All Absent</button>
+                        <button id="save-attendance-btn" class="btn-success"><i class="fas fa-save"></i> Save Attendance</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+    <script src="script.js"></script>
+    <script src="retro-grid.js"></script>
+    <script src="exportToExcel.js"></script>
+</body>
+</html>
